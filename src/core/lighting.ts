@@ -5,14 +5,13 @@ export function setupLighting(scene: THREE.Scene) {
   hemi.position.set(0, 200, 0);
   scene.add(hemi);
 
-  const dir = new THREE.DirectionalLight(0xffffff, 1.0);
+  const dir = new THREE.DirectionalLight(0xffffff, 5.0);
   dir.position.set(50, 50, -50);
   dir.castShadow = true;
   scene.add(dir);
 
-  let isDay = true;
   const setDayMode = (day: boolean) => {
-    isDay = day;
+    console.log(`Setting day mode to ${day}`);
     scene.background = new THREE.Color(day ? 0xaadfff : 0x000022);
     scene.fog = new THREE.Fog(day ? 0xaadfff : 0x000022, 30, 120);
     hemi.intensity = day ? 1 : 0.2;
