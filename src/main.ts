@@ -1,52 +1,31 @@
-import "./styles.css";
-import { setupScene } from "./core/scene";
-import { setupRenderer } from "./core/renderer";
-import { setupCamera } from "./core/camera";
-import { setupLighting, toggleDayNight } from "./core/lighting";
-import { setupHUD } from "./ui/hud";
-import { PlacementSystem } from "./systems/placement";
-import { createItemsCatalog } from "./catalog";
-import { loadGround } from "./systems/ground-loader";
-import { loadAtlas } from "./systems/objects-loader";
-import { playBackgroundMusic } from "./systems/audio";
+import "./styles.scss";
+import { Scene, Resources, Time, playBackgroundMusic } from "core";
+import { ItemManager } from "items";
+import { UI } from "ui";
 
-// Basic game bootstrap
-const canvasContainer = document.getElementById("app")!;
+export class Game {
+  private readonly resources = new Resources();
+  private readonly time = new Time();
+  private readonly itemManager = new ItemManager();
 
-const { scene } = setupScene();
-const { renderer } = setupRenderer(canvasContainer);
-const { camera, controls } = setupCamera(canvasContainer);
-const { lights, setDayMode } = setupLighting(scene);
-const placement = new PlacementSystem(scene, camera, renderer.domElement);
-const catalog = createItemsCatalog(scene);
+  private scene?: Scene;
+  private readonly ui = new UI();
 
-await Promise.all([
-  loadGround(scene, "gltf/ground.glb"),
-  loadAtlas("gltf/objects.glb"),
-]);
+  async start() {
+    await this.resources.load();
 
-// HUD setup
-setupHUD({
-  onSelect: (factory) => placement.setSelectedFactory(factory),
-  onClear: () => placement.clear(),
-  onUndo: () => placement.undo(),
-  onToggleDayNight: () => toggleDayNight(lights, setDayMode),
-  catalog,
-});
+    this.scene = new Scene();
+    this.loop();
+    playBackgroundMusic();
+  }
 
-// Example: start music after first click/tap
-window.addEventListener(
-  "pointerdown",
-  () => {
-    if (!import.meta.env.DEV) playBackgroundMusic();
-  },
-  { once: true }
-);
-
-// Animate loop
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
+  private readonly loop = () => {
+    requestAnimationFrame(this.loop);
+    const dt = 1 / 60; // fixed timestep
+    this.time.update(dt);
+    this.scene?.render();
+    this.ui.render();
+  };
 }
-animate();
+
+void new Game().start();
