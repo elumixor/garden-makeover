@@ -5,8 +5,6 @@ export function playBackgroundMusic() {
   window.addEventListener(
     "pointerdown",
     () => {
-      if (import.meta.env.DEV) return;
-
       if (!bgm) {
         bgm = new Audio("public/sounds/theme.mp3");
         bgm.loop = true;
@@ -29,4 +27,16 @@ export function stopBackgroundMusic() {
 
   bgm.pause();
   bgm.currentTime = 0;
+}
+
+export function playClick() {
+  void new Audio("sounds/click.mp3").play();
+}
+
+export function playPlaceSound() {
+  void new Audio("sounds/place.mp3").play();
+}
+
+export function playWinSound() {
+  void new Audio("sounds/win.mp3").play();
 }

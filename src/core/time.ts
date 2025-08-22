@@ -10,23 +10,21 @@ export class Time {
   private time = 0;
   private speed = 1;
   private events: IScheduledEvent[] = [];
-  readonly cycleDuration = 10; // seconds for full day/night cycle
+  readonly cycleDuration = 5; // seconds for full day/night cycle
+  private readonly speedupDuration = 0.2; // seconds of fast-forward
   private speedupTimer = 0;
 
   update(dt: number) {
     if (this.speedupTimer > 0) {
       this.speedupTimer -= dt;
-      this.time += dt * (this.cycleDuration / 1); // fast-forward: 1s per cycle
+      this.time += dt * (this.cycleDuration / this.speedupDuration);
       if (this.speedupTimer <= 0) this.speedupTimer = 0;
     } else this.time += dt * this.speed;
 
-    // Collect due events first, then filter out only after all callbacks
-    const due: IScheduledEvent[] = [];
-    for (const e of this.events) {
-      if (this.time >= e.triggerAt) due.push(e);
-    }
+    // Collect due events
+    const due = this.events.filter((e) => this.time >= e.triggerAt);
 
-    // Remove only those that are due
+    // Keep only future events
     this.events = this.events.filter((e) => this.time < e.triggerAt);
 
     // Call all due events (new events scheduled inside callbacks will not be lost)
@@ -34,7 +32,13 @@ export class Time {
   }
 
   schedule(callback: () => void, delay: number) {
-    this.events.push({ callback, triggerAt: this.time + delay });
+    const event: IScheduledEvent = { callback, triggerAt: this.time + delay };
+    this.events.push(event);
+    // Return a cancel function
+    return () => {
+      const idx = this.events.indexOf(event);
+      if (idx !== -1) this.events.splice(idx, 1);
+    };
   }
 
   setSpeed(multiplier: number) {
@@ -47,6 +51,6 @@ export class Time {
   }
 
   speedUp() {
-    this.speedupTimer = 1; // 1 second of fast-forward
+    this.speedupTimer = this.speedupDuration;
   }
 }

@@ -1,10 +1,11 @@
 import { ItemManager, type ItemName } from "items";
 import { Mesh, MeshBasicMaterial, PlaneGeometry, Scene, Vector2, Vector3 } from "three";
 import { di } from "utils";
+import { playPlaceSound } from "./audio";
 
 export class Grid {
   private readonly itemManager = di.inject(ItemManager);
-  private readonly cellSize = 5;
+  private readonly cellSize = 3;
   private readonly occupied = new Set<string>();
   private readonly highlightPlane;
 
@@ -46,6 +47,7 @@ export class Grid {
 
     const position = this.toWorld(gridCoords);
     item.place(position);
+    playPlaceSound();
 
     const coords = `${gridCoords.x},${gridCoords.y}`;
     this.occupied.add(coords);

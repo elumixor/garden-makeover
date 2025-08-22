@@ -1,0 +1,82 @@
+.progressPanel {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 22;
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.eggIcon {
+  font-size: 22px;
+}
+
+@keyframes progressBlink {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.progressText {
+  font-size: 17px;
+  color: #fff;
+  font-weight: bold;
+  min-width: 90px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.45),
+    0 1px 0 #222;
+}
+
+.progressTextEgg {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  display: inline-block;
+  animation: progressBlink 1.8s infinite;
+}
+
+.progressBar {
+  flex-direction: row;
+  height: 14px;
+  background: #fffa;
+  border-radius: 7px;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.progress-egg {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+.progressBarInner {
+  height: 100%;
+  background: linear-gradient(90deg, #fff700 0%, #8bc34a 100%);
+  width: 0%;
+  transition: width 0.3s;
+  border-radius: 7px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}

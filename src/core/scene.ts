@@ -3,7 +3,7 @@ import {
   Color,
   DirectionalLight,
   Fog,
-  PerspectiveCamera,
+  OrthographicCamera,
   Plane,
   Raycaster,
   Scene as TScene,
@@ -20,7 +20,7 @@ import { Time } from "./time";
 @di.injectable
 export class Scene {
   public readonly scene = new TScene();
-  public readonly camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+  public readonly camera = new OrthographicCamera();
   public readonly renderer = new WebGLRenderer({ antialias: true });
   public readonly raycaster = new Raycaster();
   private readonly resources = di.inject(Resources);
@@ -35,18 +35,19 @@ export class Scene {
   private readonly directionalLight = new DirectionalLight(0xffffff, 3);
   private readonly ambientLight = new AmbientLight(0xffffff, 0.2);
 
-  private readonly fogDay = new Color(0xaaaf8f);
+  private readonly fogDay = new Color(0xffaf8f);
   private readonly fogNight = new Color(0x222a3a);
   private readonly bgDay = new Color(0xaaaf8f);
   private readonly bgNight = new Color(0x1a1e2a);
 
   constructor() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio); // Increase render quality
     document.body.appendChild(this.renderer.domElement);
 
     // Set up camera
     this.camera.position.set(-20, 20, 15);
-    this.camera.lookAt(5, -15, -5);
+    this.camera.lookAt(5, 0, -5);
 
     // Set up basic lighting
     this.directionalLight.position.set(5, 10, 7.5);
@@ -79,6 +80,35 @@ export class Scene {
       const selectedItem = this.itemManager.selectedItem;
       this.grid.addItem(selectedItem, this.lastGridCoordinates);
     });
+
+    // Update camera on window resize
+    window.addEventListener("resize", () => {
+      this.updateCamera();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    this.updateCamera();
+  }
+
+  // Update camera bounds and projection
+  private updateCamera() {
+    const requiredWidth = 20;
+    const requiredHeight = 32;
+
+    const { innerHeight, innerWidth } = window;
+
+    const scale = Math.max(requiredHeight / innerHeight, requiredWidth / innerWidth);
+
+    const viewWidth = innerWidth * scale;
+    const viewHeight = innerHeight * scale;
+
+    this.camera.left = -viewWidth / 2;
+    this.camera.right = viewWidth / 2;
+    this.camera.top = viewHeight / 2;
+    this.camera.bottom = -viewHeight / 2;
+    this.camera.near = -100;
+    this.camera.far = 100;
+
+    this.camera.updateProjectionMatrix();
   }
 
   private mouseToGrid({ clientX, clientY }: MouseEvent, raycaster: Raycaster, plane: Plane) {
@@ -108,8 +138,8 @@ export class Scene {
     (this.scene.background as Color).lerpColors(this.bgDay, this.bgNight, t);
 
     // Directional light color/intensity
-    this.directionalLight.intensity = 5 * (1 - t) + 2 * t;
-    this.directionalLight.color.lerpColors(new Color(0xffffff), new Color(0x6a7bff), t);
+    this.directionalLight.intensity = 6 * (1 - t) + 3 * t;
+    this.directionalLight.color.lerpColors(new Color(0xffafaf), new Color(0x6a7bff), t);
 
     // Ambient light
     this.ambientLight.intensity = 2;

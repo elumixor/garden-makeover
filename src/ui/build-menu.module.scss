@@ -1,0 +1,113 @@
+.buildMenu {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 12px 16px;
+  max-width: 98vw;
+  width: fit-content;
+  min-width: 220px;
+  transition: width 0.2s;
+  pointer-events: auto;
+  min-width: 120px;
+  padding: 0 2vw 8px 2vw;
+}
+
+.buildMenuItems {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.buildMenuItem {
+  min-width: 56px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  opacity: 1;
+  cursor: pointer;
+  transition:
+    border 0.2s,
+    background 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 5px 0 2px 0;
+  gap: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+
+  img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+}
+
+.buildMenuItemNeeds {
+  font-size: 14px;
+  color: #444;
+  margin: 2px 4px 0 4px;
+  text-align: center;
+  width: 100%;
+  word-break: keep-all;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.buildMenuItemSelected {
+  background-color: #8bc34a;
+}
+.buildMenuItemDisabled {
+  background: #ddd;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buildMenuCategories {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  justify-content: center;
+  margin-bottom: 0;
+  margin-top: 10px;
+}
+
+.buildMenuCategoryBtn {
+  border-radius: 50%;
+  border: none;
+  background: #f3f3f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+  padding: 0;
+
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+
+  img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    margin: 10px;
+  }
+}
+
+.buildMenuCategoryBtnActive {
+  background: #8bc34a;
+  box-shadow: 0 2px 8px rgba(139, 195, 74, 0.18);
+}

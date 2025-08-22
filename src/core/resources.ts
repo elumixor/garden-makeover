@@ -1,4 +1,4 @@
-import { Mesh, Object3D } from "three";
+import { AnimationClip, Mesh, Object3D, Texture, TextureLoader } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { SkeletonUtils } from "three/examples/jsm/Addons.js";
 import { di } from "utils";
@@ -14,15 +14,22 @@ export type ModelName =
 
 @di.injectable
 export class Resources {
+  readonly imageCache: Record<string, HTMLImageElement> = {};
+  readonly animations = new Map<string, AnimationClip>();
   private readonly models = new Map<ModelName, Object3D>();
+  smokeTexture?: Texture;
 
   async load() {
     const loader = new GLTFLoader();
-
-    const [field, children] = await Promise.all([
+    const textureLoader = new TextureLoader();
+    const [field, children, , smokeTexture] = await Promise.all([
       loader.loadAsync("models/ground.glb"),
       loader.loadAsync("models/objects.glb"),
+      this.preloadImages(),
+      textureLoader.loadAsync("images/smoke.png"),
     ]);
+
+    this.smokeTexture = smokeTexture;
 
     field.scene.traverse(setupMesh);
     field.scene.position.set(0, 0, 0);
@@ -38,12 +45,30 @@ export class Resources {
 
     this.models.set("field", field.scene);
     for (const object of objects) this.models.set(object.name as ModelName, object);
+
+    for (const animation of children.animations) this.animations.set(animation.name, animation);
   }
 
   instantiate(name: ModelName): Object3D {
     const model = this.models.get(name);
     if (!model) throw new Error(`Model "${name}" not found`);
     return SkeletonUtils.clone(model);
+  }
+
+  private async preloadImages() {
+    const images = ["strawberry", "egg", "corn", "grape", "tomato", "money"];
+    await Promise.all(
+      images.map(
+        (name) =>
+          new Promise<void>((resolve) => {
+            const img = new window.Image();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            img.src = `images/${name}.png`;
+            this.imageCache[name] = img;
+          }),
+      ),
+    );
   }
 }
 
