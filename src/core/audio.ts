@@ -6,7 +6,7 @@ export function playBackgroundMusic() {
     "pointerdown",
     () => {
       if (!bgm) {
-        bgm = new Audio("public/sounds/theme.mp3");
+        bgm = new Audio("sounds/theme.mp3");
         bgm.loop = true;
         bgm.volume = 0.5;
       }
