@@ -1,7 +1,8 @@
+@use "../styles/variables" as *;
+// Base overlay & content
 .popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.7);
@@ -185,37 +186,6 @@
     opacity: 1;
     transform: scale(1);
   }
-}
-
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  transition: opacity 0.25s;
-  width: 100vw;
-  height: 100vh;
-}
-
-.popup-overlay.popup-visible {
-  display: flex;
-  opacity: 1;
-  animation: popup-overlay-fade-in 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.popup-content {
-  background: none;
-  width: 320px;
-  border-radius: 18px;
-  box-shadow: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 90vw;
-  opacity: 0;
-  transform: scale(0.92);
-  transition: none;
-  animation: none;
 }
 
 .popup-overlay.popup-visible .popup-content {

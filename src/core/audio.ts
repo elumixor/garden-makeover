@@ -1,7 +1,7 @@
 let bgm: HTMLAudioElement | null = null;
 
 export function playBackgroundMusic() {
-  // Example: start music after first click/tap
+  // Start music after first click/tap
   window.addEventListener(
     "pointerdown",
     () => {
@@ -20,13 +20,6 @@ export function playBackgroundMusic() {
     },
     { once: true },
   );
-}
-
-export function stopBackgroundMusic() {
-  if (!bgm) return;
-
-  bgm.pause();
-  bgm.currentTime = 0;
 }
 
 export function playClick() {

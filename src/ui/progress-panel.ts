@@ -1,37 +1,29 @@
-import { ItemManager } from "items";
-import { di } from "utils";
+import { ItemManager } from "item-manager";
+import { di, customElement } from "utils";
 import styles from "./progress-panel.module.scss";
 
-export class ProgressPanel {
+@customElement()
+export class ProgressPanel extends HTMLElement {
   private readonly itemManager = di.inject(ItemManager);
-
-  private readonly root = document.createElement("div");
-  private readonly progressText = document.createElement("div");
-  private readonly progressBar = document.createElement("div");
-  private readonly progressBarInner = document.createElement("div");
+  private readonly progressText = this.addElement("div", { className: styles.progressText });
+  private readonly progressBar = this.addElement("div", { className: styles.progressBar });
+  private readonly progressBarInner = this.progressBar.addElement("div", { className: styles.progressBarInner });
 
   constructor() {
-    this.root.className = styles.progressPanel;
+    super();
 
-    this.progressText.className = styles.progressText;
-    this.progressText.innerHTML = `Collect ${this.itemManager.goalEggs} <img src="images/egg.png" alt="egg" class="${styles.progressTextEgg}">`;
+    this.progressText.addElement("span", { text: `Collect ${this.itemManager.goalEggs}` });
+    this.progressText.addElement("img", {
+      attrs: { src: "images/egg.png", alt: "egg" },
+      className: styles.progressTextEgg,
+    });
 
-    this.progressBar.className = styles.progressBar;
-    this.progressBarInner.className = styles.progressBarInner;
-    this.progressBar.appendChild(this.progressBarInner);
-
-    this.root.appendChild(this.progressText);
-    this.root.appendChild(this.progressBar);
-
-    document.body.appendChild(this.root);
-
+    this.className = styles.progressPanel;
     this.itemManager.changed.subscribe(() => this.update());
     this.update();
   }
 
-  update() {
-    const eggs = this.itemManager.eggs;
-    const percent = Math.min(eggs / this.itemManager.goalEggs, 1) * 100;
-    this.progressBarInner.style.width = `${percent}%`;
+  private update() {
+    this.progressBarInner.style.width = `${Math.min(this.itemManager.progress, 1) * 100}%`;
   }
 }

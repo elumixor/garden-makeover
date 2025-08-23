@@ -1,29 +1,21 @@
-import { AmbientLight, Color, DirectionalLight, Fog, OrthographicCamera, Scene as TScene, WebGLRenderer } from "three";
+import { AmbientLight, Color, DirectionalLight, Fog, OrthographicCamera, Scene, WebGLRenderer } from "three";
 import { di, Interactivity } from "utils";
-import { Grid } from "./grid";
-import { Resources } from "./resources";
+import { Assets } from "./assets";
 import { Time } from "./time";
 
 @di.injectable
-export class Scene {
-  readonly scene = new TScene();
+export class GameScene {
+  readonly scene = new Scene();
   readonly camera = new OrthographicCamera();
   readonly renderer = new WebGLRenderer({ antialias: true });
 
   private readonly interactivity = new Interactivity(this.renderer, this.camera);
-
-  private readonly resources = di.inject(Resources);
+  private readonly resources = di.inject(Assets);
   private readonly time = di.inject(Time);
-
-  private readonly grid = new Grid();
 
   private readonly directionalLight = new DirectionalLight(0xffffff, 3);
   private readonly ambientLight = new AmbientLight(0xffffff, 0.2);
-
-  private readonly fogDay = new Color(0xffaf8f);
-  private readonly fogNight = new Color(0x222a3a);
-  private readonly bgDay = new Color(0xaaaf8f);
-  private readonly bgNight = new Color(0x1a1e2a);
+  private readonly fog = new Fog(0xfff, 45, 65);
 
   constructor() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -42,16 +34,12 @@ export class Scene {
     this.scene.add(this.ambientLight);
 
     // Add fog
-    this.scene.background = this.bgDay.clone();
-    this.scene.fog = new Fog(this.fogDay.clone(), 45, 65);
+    this.scene.fog = this.fog;
 
     // Add ground
     const field = this.resources.instantiate("field");
     this.scene.add(field);
     field.position.y = -4.25;
-
-    // Add grid
-    this.scene.add(this.grid);
 
     // Update camera on window resize
     window.addEventListener("resize", () => {
@@ -62,10 +50,13 @@ export class Scene {
 
     // Start the render loop
     this.time.subscribe(this.render.bind(this));
+
+    // Start listening for pointer events
+    this.interactivity.listen();
   }
 
   private render() {
-    this.setDayNightPhase(this.time.phase);
+    this.updateDayNightLighting(this.time.phase);
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -91,26 +82,27 @@ export class Scene {
     this.camera.updateProjectionMatrix();
   }
 
-  private setDayNightPhase(phase: number) {
+  private updateDayNightLighting(phase: number) {
     // phase: 0..1, 0=day, 0.5=night, 1=day
     const t = 0.5 - 0.5 * Math.cos(phase * Math.PI * 2); // 0..1..0
 
     // Fog and background
-    (this.scene.fog as Fog).color.lerpColors(this.fogDay, this.fogNight, t);
-    (this.scene.background as Color).lerpColors(this.bgDay, this.bgNight, t);
+    this.fog.color = new Color(0xffaf8f).lerp(new Color(0x222a3a), t);
+    this.scene.background = new Color(0xaaaf8f).lerp(new Color(0x1a1e2a), t);
 
     // Directional light color/intensity
     this.directionalLight.intensity = 6 * (1 - t) + 3 * t;
-    this.directionalLight.color.lerpColors(new Color(0xffafaf), new Color(0x6a7bff), t);
+    this.directionalLight.color = new Color(0xffafaf).lerp(new Color(0x6a7bff), t);
 
     // Ambient light
     this.ambientLight.intensity = 2;
-    this.ambientLight.color.lerpColors(new Color(0xffffff), new Color(0x7a7aff), t);
+    this.ambientLight.color = new Color(0xffffff).lerp(new Color(0x7a7aff), t);
 
     // Sun/moon moves in a circle overhead
     // Angle: 0 = sunrise, PI = sunset, 2PI = next sunrise
     const sunAngle = phase * 2 * Math.PI - Math.PI / 2;
     const sunRadius = 30;
+
     // Sun rises in east (x>0), sets in west (x<0), high at noon (y>0), low at night (y<0)
     const sunX = Math.cos(sunAngle) * sunRadius;
     const sunY = Math.sin(sunAngle) * sunRadius;

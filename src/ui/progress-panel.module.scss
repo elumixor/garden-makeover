@@ -1,12 +1,14 @@
+@use "../styles/variables" as *;
+@use "../styles/mixins" as *;
+@use "../styles/animations";
+
 .progressPanel {
   position: absolute;
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 22;
-  border-radius: 8px;
-  box-shadow: none;
-  padding: 0;
+  padding: 4px 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -17,18 +19,6 @@
 
 .eggIcon {
   font-size: 22px;
-}
-
-@keyframes progressBlink {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-  100% {
-    transform: scale(1);
-  }
 }
 
 .progressText {

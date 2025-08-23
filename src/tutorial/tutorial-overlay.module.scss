@@ -1,7 +1,9 @@
+@use "../styles/variables" as *;
+@use "../styles/mixins" as *;
+
 .tutorialOverlay {
   position: fixed;
-  left: 0;
-  top: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.8);
@@ -16,10 +18,10 @@
   background: transparent;
   border-radius: 50%;
   z-index: 10000;
-  left: 0px;
-  top: 0px;
-  width: 0px;
-  height: 0px;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
   border: none;
   outline: none;
   transition: opacity 0.1s;
@@ -36,8 +38,8 @@
     0 2px 8px #000,
     0 1px 0 #222;
   z-index: 10001;
-  left: 0px;
-  top: 0px;
+  left: 0;
+  top: 0;
   pointer-events: none;
   padding: 10px 18px;
   box-sizing: border-box;
@@ -49,13 +51,52 @@
   transition: opacity 0.1s;
 }
 
+.tutorialOverlayCenterText {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -60%);
+  display: none;
+  text-align: center;
+  z-index: 10001;
+  pointer-events: auto;
+}
+
+.tutorialOverlayCenterImage {
+  display: block;
+  margin: 24px auto 0 auto;
+  cursor: pointer;
+  width: 64px;
+  height: 64px;
+  pointer-events: auto;
+  z-index: 10002;
+}
+
+.tutorialOverlaySkipButton {
+  position: fixed;
+  top: 130px;
+  left: 10px;
+  z-index: 10010;
+  font-size: 16px;
+  border: none;
+  background: transparent;
+  color: #aaa;
+  font-weight: bold;
+  font-style: italic;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  opacity: 0.95;
+  transition: opacity 0.2s;
+  @include button-reset;
+}
+
 @keyframes tutorialTextBlink {
   0% {
     color: #fff;
     text-shadow:
       0 2px 8px #000,
       0 1px 0 #222,
-      0 0 0px #ffd700;
+      0 0 0 #ffd700;
   }
   40% {
     color: #ffd700;
@@ -76,6 +117,6 @@
     text-shadow:
       0 2px 8px #000,
       0 1px 0 #222,
-      0 0 0px #ffd700;
+      0 0 0 #ffd700;
   }
 }

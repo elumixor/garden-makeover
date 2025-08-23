@@ -1,13 +1,13 @@
 import { di, EventEmitter } from "utils";
-import { BaseItem } from "./base-item";
-import { itemDefs, type ItemName, type Resource } from "./item-defs";
+import { GridItem, itemDefs, type IItemDef, type ItemName, type Resource } from "./grid-items";
 
 @di.injectable
 export class ItemManager {
+  selectedItem?: ItemName;
+
   readonly changed = new EventEmitter();
   readonly goalReached = new EventEmitter();
-  readonly moneyDepleted = new EventEmitter(); // Add this line
-  selectedItem?: ItemName;
+  readonly moneyDepleted = new EventEmitter();
 
   readonly resources: Record<Resource, number> = {
     money: 3,
@@ -17,9 +17,19 @@ export class ItemManager {
     tomato: 0,
   };
 
-  readonly goalEggs = 50;
+  readonly goalEggs = 25;
 
-  private readonly placedItems: BaseItem[] = []; // Track placed items
+  private readonly placedItems: GridItem[] = []; // Track placed items
+
+  constructor() {
+    this.changed.subscribe(() => {
+      // Emit goalReached if eggs goal is reached
+      if (this.eggs >= this.goalEggs) this.goalReached.emit();
+
+      // Emit moneyDepleted if money is zero or less and no items can yield money
+      if (this.money <= 0 && !this.canYieldMoney) this.moneyDepleted.emit();
+    });
+  }
 
   get money() {
     return this.resources.money;
@@ -46,18 +56,15 @@ export class ItemManager {
     const def = itemDefs[itemName];
     if (!this.hasEnoughResources(def)) return undefined;
 
-    const item = new BaseItem(def);
+    const item = new GridItem(def);
     this.placedItems.push(item); // Track placed item
 
     this.spendResources(def);
 
-    item.collected.subscribe((data) => {
+    item.collected.subscribe(({ type, amount }) => {
       // Update resources on collection
-      this.resources[data.type] = (this.resources[data.type] ?? 0) + data.amount;
+      this.resources[type] = (this.resources[type] ?? 0) + amount;
       this.changed.emit();
-
-      // Emit goalReached if eggs goal is reached
-      if (data.type === "egg" && this.resources.egg >= this.goalEggs) this.goalReached.emit();
     });
 
     item.removed.subscribe(() => this.placedItems.remove(item));
@@ -65,20 +72,17 @@ export class ItemManager {
     return item;
   }
 
-  hasEnoughResources(def: (typeof itemDefs)[ItemName]) {
+  hasEnoughResources(def: IItemDef) {
     if (this.money < def.cost) return false;
     for (const need of def.needs ?? []) if ((this.resources[need.type] || 0) < need.amount) return false;
 
     return true;
   }
 
-  spendResources(def: (typeof itemDefs)[ItemName]) {
+  private spendResources(def: IItemDef) {
     this.money -= def.cost;
     for (const need of def.needs ?? []) this.resources[need.type] = (this.resources[need.type] || 0) - need.amount;
 
     this.changed.emit();
-
-    // Emit moneyDepleted if money is zero or less and no items can yield money
-    if (this.money <= 0 && !this.canYieldMoney) this.moneyDepleted.emit();
   }
 }

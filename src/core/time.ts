@@ -1,15 +1,9 @@
 import { Clock } from "three";
 import { di } from "utils";
 
-interface IScheduledEvent {
-  callback(): void;
-  triggerAt: number;
-}
 interface IUpdateParams {
   deltaTime: number;
   fixedDeltaTime: number;
-  time: number;
-  fixedTime: number;
 }
 
 @di.injectable
@@ -18,9 +12,8 @@ export class Time {
   private readonly cycleDurationFast = 0.2; // seconds of fast-forward
   private readonly clock = new Clock();
   private readonly updateCallbacks: ((params: IUpdateParams) => void)[] = [];
-  private scheduleCallbacks: IScheduledEvent[] = [];
+  private scheduleCallbacks: { callback(): void; triggerAt: number }[] = [];
   private time = 0;
-  private fixedTime = 0;
   private speedupTimer = 0;
   paused = false;
 
@@ -39,13 +32,14 @@ export class Time {
   }
 
   schedule(callback: () => void, delay: number) {
-    this.scheduleCallbacks.push({ callback, triggerAt: this.time + delay });
-    return { unsubscribe: () => this.scheduleCallbacks.remove({ callback, triggerAt: this.time + delay }) };
+    const event = { callback, triggerAt: this.time + delay };
+    this.scheduleCallbacks.push(event);
+    return { unsubscribe: () => this.scheduleCallbacks.remove(event) };
   }
 
   /** Starts the time, render loop */
   readonly start = () => {
-    requestAnimationFrame(this.start); // schedule next frame
+    window.requestAnimationFrame(this.start); // schedule next frame
     const fixedDeltaTime = this.clock.getDelta(); // seconds since last frame
 
     if (this.paused) return;
@@ -60,8 +54,7 @@ export class Time {
     // Update current time
     const deltaTime = fixedDeltaTime * speed;
     this.time += deltaTime;
-    this.fixedTime += fixedDeltaTime;
-    const updateParams = { deltaTime, fixedDeltaTime: fixedDeltaTime, time: this.time, fixedTime: this.fixedTime };
+    const updateParams = { deltaTime, fixedDeltaTime: fixedDeltaTime };
 
     // Trigger events
 

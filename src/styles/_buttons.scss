@@ -1,0 +1,76 @@
+@use "./variables" as *;
+@use "./mixins" as *;
+
+// Base reset for all custom buttons
+%btn-base {
+  // placeholder selector
+  @include button-reset;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+// Solid primary button
+.btnPrimary {
+  @extend %btn-base;
+  background: $color-accent;
+  color: #fff;
+  padding: 0.65rem 1rem;
+  border-radius: $radius-md;
+  box-shadow: $shadow-soft;
+  transition:
+    background $transition-fast,
+    transform $transition-fast,
+    filter $transition-fast;
+  &:hover {
+    filter: brightness(1.08);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+// Circular icon button
+.btnCircle {
+  @extend %btn-base;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #fffa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition:
+    background $transition-fast,
+    box-shadow $transition-fast;
+  &:hover {
+    background: #e3eaf7;
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Small pill button
+.btnPill {
+  @extend %btn-base;
+  background: #f3f3f3;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.875rem;
+  transition: background $transition-fast;
+  &:hover {
+    background: #e8e8e8;
+  }
+}
+
+// Utility modifiers
+.btnGlowAccent {
+  box-shadow: 0 2px 8px $color-accent-glow;
+}

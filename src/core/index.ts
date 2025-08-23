@@ -1,5 +1,4 @@
 export * from "./time";
-export * from "./resources";
-export * from "./scene";
+export * from "./assets";
+export * from "./game-scene";
 export * from "./audio";
-export * from "./grid";

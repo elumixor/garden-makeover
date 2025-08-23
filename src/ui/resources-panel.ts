@@ -1,70 +1,46 @@
-import { ItemManager } from "items";
-import { di } from "utils";
+import { ItemManager } from "item-manager";
+import { customElement, di } from "utils";
 import styles from "./resources-panel.module.scss";
-
-export class ResourcesPanel {
+@customElement()
+export class ResourcesPanel extends HTMLElement {
   private readonly itemManager = di.inject(ItemManager);
-
-  private readonly root = document.createElement("div");
-  private readonly coinsRow = document.createElement("div");
-  private readonly cornRow = document.createElement("div");
-  private readonly eggsRow = document.createElement("div");
-
   private readonly coinsValue = document.createElement("span");
   private readonly cornValue = document.createElement("span");
   private readonly eggsValue = document.createElement("span");
 
   constructor() {
-    this.root.className = styles.resourcesPanel;
+    super();
+    this.className = styles.resourcesPanel;
 
-    // Coins row
-    this.coinsRow.className = styles.resourceRow;
-    const coinsIcon = document.createElement("img");
-    coinsIcon.src = "images/money.png";
-    coinsIcon.alt = "Coins";
-    coinsIcon.className = styles.resourceIcon;
-    this.coinsValue.textContent = `${this.itemManager.money}`;
-    this.coinsRow.appendChild(coinsIcon);
-    this.coinsRow.appendChild(this.coinsValue);
+    const rows: { icon: string; alt: string; valueEl: HTMLSpanElement; compute: () => string }[] = [
+      { icon: "money", alt: "Coins", valueEl: this.coinsValue, compute: () => `${this.itemManager.money}` },
+      { icon: "corn", alt: "Corn", valueEl: this.cornValue, compute: () => `${this.itemManager.resources.corn ?? 0}` },
+      { icon: "egg", alt: "Eggs", valueEl: this.eggsValue, compute: () => `${this.itemManager.eggs}` },
+    ];
 
-    // Corn row
-    this.cornRow.className = styles.resourceRow;
-    const cornIcon = document.createElement("img");
-    cornIcon.src = "images/corn.png";
-    cornIcon.alt = "Corn";
-    cornIcon.className = styles.resourceIcon;
-    this.cornValue.textContent = `${this.itemManager.resources.corn ?? 0}`;
-    this.cornRow.appendChild(cornIcon);
-    this.cornRow.appendChild(this.cornValue);
+    for (const r of rows) {
+      r.valueEl.textContent = r.compute();
+      const el = this.addElement("div", { className: styles.resourceRow });
 
-    // Eggs row
-    this.eggsRow.className = styles.resourceRow;
-    const eggsIcon = document.createElement("img");
-    eggsIcon.src = "images/egg.png";
-    eggsIcon.alt = "Eggs";
-    eggsIcon.className = styles.resourceIcon;
-    this.eggsValue.textContent = `${this.itemManager.eggs}`;
-    this.eggsRow.appendChild(eggsIcon);
-    this.eggsRow.appendChild(this.eggsValue);
+      el.addElement("img", {
+        className: styles.resourceIcon,
+        attrs: { src: `images/${r.icon}.png`, alt: r.alt },
+      });
 
-    this.root.appendChild(this.coinsRow);
-    this.root.appendChild(this.cornRow);
-    this.root.appendChild(this.eggsRow);
-
-    document.body.appendChild(this.root);
-
+      el.appendChild(r.valueEl);
+    }
     this.itemManager.changed.subscribe(() => this.update());
   }
 
   private animateValue(el: HTMLElement) {
     el.classList.remove(styles.animated); // reset if already animating
-    // Force reflow to restart animation
-    void el.offsetWidth;
     el.classList.add(styles.animated);
+
     const remove = () => {
       el.classList.remove(styles.animated);
       el.removeEventListener("animationend", remove);
     };
+
     el.addEventListener("animationend", remove);
   }
 
@@ -73,10 +49,12 @@ export class ResourcesPanel {
       this.coinsValue.textContent = `${this.itemManager.money}`;
       this.animateValue(this.coinsValue);
     }
+
     if (this.eggsValue.textContent !== `${this.itemManager.eggs}`) {
       this.eggsValue.textContent = `${this.itemManager.eggs}`;
       this.animateValue(this.eggsValue);
     }
+
     const newCorn = `${this.itemManager.resources.corn ?? 0}`;
     if (this.cornValue.textContent !== newCorn) {
       this.cornValue.textContent = newCorn;

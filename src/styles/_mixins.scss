@@ -1,0 +1,31 @@
+@use "./variables" as *;
+
+@mixin flex-center($dir: row) {
+  display: flex;
+  flex-direction: $dir;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin button-reset {
+  border: none;
+  outline: none;
+  padding: 0;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+@mixin panel-base {
+  background: $color-bg-panel;
+  border-radius: $radius-md;
+  padding: 8px 12px;
+  box-shadow: $shadow-soft;
+  backdrop-filter: blur(4px);
+}
+
+@mixin text-shadow-strong {
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.45),
+    0 1px 0 #222;
+}

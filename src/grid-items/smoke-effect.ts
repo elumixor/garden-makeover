@@ -1,18 +1,18 @@
-import { Resources, Time } from "core";
+import { Assets, Time } from "core";
 import { Group, Sprite } from "three";
 import { di } from "utils";
 
 export class SmokeEffect extends Group {
   private readonly time = di.inject(Time);
-  private readonly resources = di.inject(Resources);
+  private readonly resources = di.inject(Assets);
 
   constructor() {
     super();
 
     const count = 3;
+    const { smokeMaterial } = this.resources;
     for (let i = 0; i < count; i++) {
-      const material = this.resources.smokeMaterial!;
-      const sprite = new Sprite(material);
+      const sprite = new Sprite(smokeMaterial);
 
       // Randomize position around the model
       sprite.position.x += (Math.random() - 0.5) * 1.5;

@@ -1,8 +1,8 @@
 import { playClick, Time } from "core";
-import { createSVG, di, lerpColor } from "utils";
+import { createSVG, di, lerpColor, customElement } from "utils";
 import styles from "./day-night-widget.module.scss";
-
-export class DayNightWidget {
+@customElement()
+export class DayNightWidget extends HTMLElement {
   // Add padding to SVG
   private readonly size = 54;
   private readonly padding = 6; // px of inner padding
@@ -13,16 +13,15 @@ export class DayNightWidget {
   private readonly bgRadius = this.radius + 2;
 
   private readonly time = di.inject(Time);
-  private readonly root = document.createElement("button");
-
   private readonly svg = createSVG();
   private readonly sun = createSVG("circle");
   private readonly skipImg = document.createElement("img");
 
   constructor() {
-    this.root.className = styles.dayNightWidget;
-    this.root.title = "Speed up to next day";
-    this.root.setAttribute("data-tutorial", "skip-day");
+    super();
+    this.className = styles.dayNightWidget;
+    this.title = "Speed up to next day";
+    this.setAttribute("data-tutorial", "skip-day");
 
     // Set SVG size and viewBox with padding
     this.svg.setAttribute("width", this.size.toString());
@@ -48,11 +47,9 @@ export class DayNightWidget {
     this.skipImg.alt = "Skip Day";
     this.skipImg.className = styles.dayNightSkip;
 
-    this.root.appendChild(this.svg);
-    this.root.appendChild(this.skipImg);
-
-    document.body.appendChild(this.root);
-    this.root.onpointerdown = () => {
+    this.appendChild(this.svg);
+    this.appendChild(this.skipImg);
+    this.onpointerdown = () => {
       this.time.fastForward();
       playClick();
     };

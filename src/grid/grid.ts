@@ -1,7 +1,7 @@
-import { ItemManager } from "items";
+import { ItemManager } from "item-manager";
 import { Group, Vector2, Vector3 } from "three";
 import { di } from "utils";
-import { playPlaceSound } from "../audio";
+import { playPlaceSound } from "../core/audio";
 import { GridIndicator } from "./grid-indicator";
 
 export class Grid extends Group {
@@ -12,7 +12,6 @@ export class Grid extends Group {
 
   constructor() {
     super();
-
     this.updateIndicators();
   }
 

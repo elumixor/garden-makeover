@@ -1,8 +1,8 @@
-import { playClick, Resources } from "core";
+import { Assets } from "core";
+import { Time } from "core/time";
 import { CanvasTexture, Sprite, SpriteMaterial } from "three";
 import { di, EventEmitter, Interactivity, type ISubscription } from "utils";
 import type { Resource } from "./item-defs";
-import { Time } from "core/time";
 
 export class YieldIcon extends Sprite {
   readonly clicked = new EventEmitter<void>();
@@ -24,7 +24,6 @@ export class YieldIcon extends Sprite {
     // Register click handler for this sprite
     this.interactivity.on(this, () => {
       if (!this.visible) return;
-      playClick();
       this.clicked.emit();
     });
 
@@ -63,7 +62,9 @@ export class YieldIcon extends Sprite {
     ctx.stroke();
 
     // Use preloaded image from instance cache
-    const img = di.inject(Resources).imageCache[type];
+    const img = di.inject(Assets).images.get(type);
+    if (!img) throw new Error(`Image for resource "${type}" not found`);
+
     ctx.drawImage(img, size / 2 - 48, size / 2 - 48, 96, 96);
 
     // Counter

@@ -1,20 +1,20 @@
-import { itemDefs, ItemManager } from "items";
-import { di } from "utils";
 import { playClick } from "core";
+import { itemDefs } from "grid-items";
+import { customElement, di } from "utils";
 import styles from "./build-menu.module.scss";
+import { ItemManager } from "item-manager";
 
-// Category icon asset paths (relative to /public)
 const CATEGORY_ICONS = {
   plants: "images/plant.png",
   animals: "images/chicken.png",
   buildings: "images/barn.png",
 } as const;
 
-export class BuildMenu {
+@customElement()
+export class BuildMenu extends HTMLElement {
   private readonly itemManager = di.inject(ItemManager);
-  private readonly root = document.createElement("div");
-  private readonly categoriesBar = document.createElement("div");
-  private readonly menuItems = document.createElement("div");
+  private readonly menuItems = this.addElement("div", { className: styles.buildMenuItems });
+  private readonly categoriesBar = this.addElement("div", { className: styles.buildMenuCategories });
   private readonly categories = [
     { key: "plants", icon: CATEGORY_ICONS.plants, category: "plant" },
     { key: "animals", icon: CATEGORY_ICONS.animals, category: "animal" },
@@ -36,15 +36,15 @@ export class BuildMenu {
   }[] = [];
 
   constructor() {
-    this.root.className = styles.buildMenu;
-    this.categoriesBar.className = styles.buildMenuCategories;
-    this.menuItems.className = styles.buildMenuItems;
+    super();
+    this.className = styles.buildMenu;
 
     // Category buttons (bottom row)
     for (const tab of this.categories) {
-      const btn = document.createElement("button");
-      btn.className =
-        styles.buildMenuCategoryBtn + (tab.key === this.activeTab ? ` ${styles.buildMenuCategoryBtnActive}` : "");
+      const btn = this.categoriesBar.addElement("button", {
+        className:
+          styles.buildMenuCategoryBtn + (tab.key === this.activeTab ? ` ${styles.buildMenuCategoryBtnActive}` : ""),
+      });
       btn.setAttribute("data-tutorial", tab.key);
       btn.onpointerdown = () => {
         playClick();
@@ -54,26 +54,17 @@ export class BuildMenu {
 
         this.updateMenuItems();
       };
-
-      const img = document.createElement("img");
-      img.src = tab.icon;
-      img.alt = tab.key;
-      btn.appendChild(img);
+      btn.addElement("img", { attrs: { src: tab.icon, alt: tab.key } });
 
       this.tabButtons[tab.key] = btn;
       this.categoriesBar.appendChild(btn);
     }
 
-    this.root.appendChild(this.menuItems);
-    this.root.appendChild(this.categoriesBar);
-    document.body.appendChild(this.root);
-
     // Create the maximum number of buttons needed for any tab
     const maxItems = Math.max(...this.categories.map((tab) => this.getDefsForCategory(tab.category).length));
 
     for (let i = 0; i < maxItems; ++i) {
-      const btn = document.createElement("button");
-      btn.className = styles.buildMenuItem;
+      const btn = this.menuItems.addElement("button", { className: styles.buildMenuItem });
       btn.setAttribute("data-tutorial", "");
       btn.onpointerdown = () => {
         const def = this.getDefsForActiveTab()[i];
@@ -85,7 +76,6 @@ export class BuildMenu {
       };
       this.menuButtons.push(btn);
       this.lastButtonStates.push({});
-      this.menuItems.appendChild(btn);
     }
 
     // Do NOT select any item or tab initially
@@ -111,67 +101,55 @@ export class BuildMenu {
   }
 
   private updateMenuItems() {
-    const defs = this.getDefsForActiveTab();
-    // Hide the menuItems container if no tab is selected
     this.menuItems.style.display = this.activeTab ? "" : "none";
-    for (let i = 0; i < this.menuButtons.length; ++i) {
+    const defs = this.getDefsForActiveTab();
+
+    for (let i = 0; i < this.menuButtons.length; i++) {
       const btn = this.menuButtons[i];
       const def = defs[i];
-      if (def) {
-        btn.style.display = "";
-
-        // Set data-tutorial attribute for each menu item
-        btn.setAttribute("data-tutorial", def.name);
-
-        // Compute current state
-        const canAfford = this.itemManager.hasEnoughResources(def);
-        const enabled = !!def.enabled && canAfford;
-        const selected = def.name === this.itemManager.selectedItem;
-        const lastState = this.lastButtonStates[i];
-
-        // Only update DOM if state changed
-        if (
-          lastState.enabled !== def.enabled ||
-          lastState.canAfford !== canAfford ||
-          lastState.selected !== selected ||
-          lastState.defName !== def.name
-        ) {
-          // Use asset image for item icon if available, fallback to nothing
-          let iconHtml = "";
-          if (def.asset) {
-            iconHtml = `<img src="${def.asset}" alt="${def.label}">`;
-          }
-
-          // Compose cost/needs line with resource images, grouping icon and amount in a span
-          let needsLine = `<span><img src="images/money.png" alt="coin" style="width:16px;height:16px;vertical-align:middle;"><span>${def.cost}</span></span>`;
-          if (def.needs && def.needs.length > 0) {
-            for (const need of def.needs) {
-              const needIcon = `<img src="images/${need.type}.png" alt="${need.type}" style="width:16px;height:16px;vertical-align:middle;">`;
-              needsLine += `  <span>${needIcon}<span>${need.amount}</span></span>`;
-            }
-          }
-
-          btn.innerHTML = `${iconHtml}<div class="${styles.buildMenuItemNeeds}">${needsLine}</div>`;
-          btn.title = def.label;
-
-          btn.className =
-            styles.buildMenuItem +
-            (def.enabled && canAfford ? "" : ` ${styles.buildMenuItemDisabled}`) +
-            (selected ? ` ${styles.buildMenuItemSelected}` : "");
-          btn.disabled = !enabled;
-
-          // Update cache
-          lastState.enabled = def.enabled;
-          lastState.canAfford = canAfford;
-          lastState.selected = selected;
-          lastState.defName = def.name;
-        }
-      } else {
+      if (!def) {
         btn.style.display = "none";
-        btn.setAttribute("data-tutorial", ""); // Clear attribute if not used
-        // Clear cache for unused buttons
         this.lastButtonStates[i] = {};
+        continue;
       }
+      btn.style.display = "";
+      btn.setAttribute("data-tutorial", def.name);
+
+      const canAfford = this.itemManager.hasEnoughResources(def);
+      const enabled = !!def.enabled && canAfford;
+      const selected = def.name === this.itemManager.selectedItem;
+      const cache = this.lastButtonStates[i];
+
+      if (
+        cache.enabled === def.enabled &&
+        cache.canAfford === canAfford &&
+        cache.selected === selected &&
+        cache.defName === def.name
+      )
+        continue; // no change
+
+      const needs: string[] = [
+        `<span><img src="images/money.png" alt="coin" style="width:16px;height:16px;vertical-align:middle;"><span>${def.cost}</span></span>`,
+      ];
+      for (const need of def.needs ?? [])
+        needs.push(
+          `<span><img src="images/${need.type}.png" alt="${need.type}" style="width:16px;height:16px;vertical-align:middle;"><span>${need.amount}</span></span>`,
+        );
+
+      btn.innerHTML = `${def.asset ? `<img src="${def.asset}" alt="${def.label}">` : ""}<div class="${styles.buildMenuItemNeeds}">${needs.join(
+        " ",
+      )}</div>`;
+      btn.title = def.label;
+      btn.className =
+        styles.buildMenuItem +
+        (enabled ? "" : ` ${styles.buildMenuItemDisabled}`) +
+        (selected ? ` ${styles.buildMenuItemSelected}` : "");
+      btn.disabled = !enabled;
+
+      cache.enabled = def.enabled;
+      cache.canAfford = canAfford;
+      cache.selected = selected;
+      cache.defName = def.name;
     }
   }
 }

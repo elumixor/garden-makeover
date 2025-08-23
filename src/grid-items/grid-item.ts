@@ -1,17 +1,16 @@
-import { Resources, Time } from "core";
+import { Assets, playClick, Time } from "core";
 import { AnimationMixer, Group, LoopRepeat, Object3D } from "three";
 import { di, EventEmitter, type ISubscription } from "utils";
+import { ItemManager } from "../item-manager";
 import type { IItemDef, Resource } from "./item-defs";
-import { ItemManager } from "./item-manager";
 import { SmokeEffect } from "./smoke-effect";
-import type { IYieldEvent } from "./yield-event";
 import { YieldIcon } from "./yield-icon";
 
-export class BaseItem extends Group {
+export class GridItem extends Group {
   readonly removed = new EventEmitter();
-  readonly collected = new EventEmitter<IYieldEvent>();
+  readonly collected = new EventEmitter<{ type: Resource; amount: number }>();
 
-  private readonly resources = di.inject(Resources);
+  private readonly resources = di.inject(Assets);
   private readonly time = di.inject(Time);
 
   private model;
@@ -36,9 +35,9 @@ export class BaseItem extends Group {
     // Animate scale in effect
     this.animateScaleIn(this.model, 0.2, 0, this.def.overshoot ? 1.25 : 1);
 
-    if (def.growthStages) this.scheduleGrowth();
-    if (def.yields) this.scheduleYield();
-    if (def.needs) this.scheduleNeeds();
+    this.scheduleGrowth();
+    this.scheduleYield();
+    this.scheduleNeeds();
   }
 
   get canYieldMoney() {
@@ -115,6 +114,7 @@ export class BaseItem extends Group {
   private scheduleGrowth() {
     if (!this.def.growthStages) return;
     if (this.currentStage >= this.def.growthStages.length - 1) return;
+
     const stageDef = this.def.growthStages[this.currentStage];
     const durationSec = stageDef.duration * this.time.cycleDuration;
 
@@ -142,22 +142,21 @@ export class BaseItem extends Group {
 
   private scheduleYield() {
     if (!this.def.yields) return;
+
     // Cancel previous scheduled events
-    this.yieldEvents.forEach((cancel) => cancel());
+    for (const cancel of this.yieldEvents) cancel();
     this.yieldEvents = [];
 
     for (const yieldDef of this.def.yields) {
       const intervalSec = yieldDef.interval * this.time.cycleDuration;
-      // Schedule using Time.schedule and keep a cancel function
+
       let cancelled = false;
-      const cancel = () => {
-        cancelled = true;
-      };
-      this.yieldEvents.push(cancel);
+      this.yieldEvents.push(() => (cancelled = true));
 
       this.time.schedule(() => {
         if (cancelled) return;
         this.addYield(yieldDef.type, yieldDef.amount);
+
         // Schedule next yield after collection, not immediately
         this.scheduleYield();
       }, intervalSec);
@@ -166,22 +165,22 @@ export class BaseItem extends Group {
 
   private scheduleNeeds() {
     if (!this.def.needs) return;
+
     // Cancel previous scheduled events
-    this.needEvents.forEach((cancel) => cancel());
+    for (const cancel of this.needEvents) cancel();
     this.needEvents = [];
 
     const itemManager = di.inject(ItemManager);
 
     for (const needDef of this.def.needs) {
       const intervalSec = needDef.interval * this.time.cycleDuration;
+
       let cancelled = false;
-      const cancel = () => {
-        cancelled = true;
-      };
-      this.needEvents.push(cancel);
+      this.needEvents.push(() => (cancelled = true));
 
       const consume = () => {
         if (cancelled) return;
+
         // Use ItemManager's resources for inventory
         if ((itemManager.resources[needDef.type] ?? 0) < needDef.amount) {
           // Not enough resource: auto-collect yield if present, then disappear
@@ -192,6 +191,7 @@ export class BaseItem extends Group {
         // Consume the resource
         itemManager.resources[needDef.type] -= needDef.amount;
         itemManager.changed.emit();
+
         // Schedule next need
         this.time.schedule(consume, intervalSec);
       };
@@ -205,7 +205,10 @@ export class BaseItem extends Group {
 
       this.yieldIcon = icon;
       this.add(icon);
-      icon.clicked.subscribe(() => this.collectYield());
+      icon.clicked.subscribe(() => {
+        playClick();
+        return this.collectYield();
+      });
     }
 
     this.yieldIcon.amount += amount;
@@ -245,7 +248,6 @@ export class BaseItem extends Group {
     // Stop animation
     this.animationSubscription?.unsubscribe();
     this.scaleSubscription?.unsubscribe();
-
     this.removed.emit();
   }
 }

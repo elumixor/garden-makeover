@@ -3,21 +3,18 @@ import { di } from "./di";
 
 export type ClickCallback = (event: PointerEvent, intersection: Intersection) => void;
 
-interface IClickListener {
-  object: Object3D;
-  callback: ClickCallback;
-}
-
 @di.injectable
 export class Interactivity {
   private readonly raycaster = new Raycaster();
-  private listeners: IClickListener[] = [];
+  private listeners: { object: Object3D; callback: ClickCallback }[] = [];
 
   constructor(
     private readonly renderer: WebGLRenderer,
     private readonly camera: Camera,
-  ) {
-    window.addEventListener("pointerdown", this.onPointerDown);
+  ) {}
+
+  listen() {
+    this.renderer.domElement.addEventListener("pointerdown", this.onPointerDown);
   }
 
   on(object: Object3D, callback: ClickCallback) {
@@ -31,9 +28,9 @@ export class Interactivity {
   }
 
   private readonly onPointerDown = (event: PointerEvent) => {
-    const rect = this.renderer.domElement.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    const { left, top, width, height } = this.renderer.domElement.getBoundingClientRect();
+    const x = ((event.clientX - left) / width) * 2 - 1;
+    const y = -((event.clientY - top) / height) * 2 + 1;
 
     this.raycaster.setFromCamera(new Vector2(x, y), this.camera);
 

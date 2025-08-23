@@ -1,6 +1,5 @@
 import type { ModelName } from "core";
 
-// Durations are in day/night cycles (see Time.cycleDuration), can be fractional (e.g. 0.5 = half cycle)
 export type Resource = "egg" | "corn" | "money" | "grape" | "tomato";
 
 // Item lifecycle/yield/behavior definition
@@ -21,6 +20,7 @@ export interface IItemDef {
   overshoot?: boolean; // add overshoot property for placement animation
   animation?: string; // single animation name if present
 }
+
 export type ItemName = "chicken" | "cow" | "sheep" | "grape" | "strawberry" | "tomato" | "corn" | "fence" | "barn";
 
 export const itemDefs: Record<ItemName, IItemDef> = {
@@ -131,7 +131,7 @@ export const itemDefs: Record<ItemName, IItemDef> = {
     cost: 5,
     category: "building",
     maxCountPer: 5, // supports up to 5 chickens
-    enabled: true,
+    enabled: false,
     disappearOnCollect: false,
     asset: "images/fence.png",
   },
