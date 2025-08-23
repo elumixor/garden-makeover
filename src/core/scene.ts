@@ -1,37 +1,22 @@
-import {
-  AmbientLight,
-  Color,
-  DirectionalLight,
-  Fog,
-  OrthographicCamera,
-  Plane,
-  Raycaster,
-  Scene as TScene,
-  Vector2,
-  Vector3,
-  WebGLRenderer,
-} from "three";
-import { di } from "utils";
+import { AmbientLight, Color, DirectionalLight, Fog, OrthographicCamera, Scene as TScene, WebGLRenderer } from "three";
+import { di, Interactivity } from "utils";
 import { Grid } from "./grid";
 import { Resources } from "./resources";
-import { ItemManager } from "items";
 import { Time } from "./time";
 
 @di.injectable
 export class Scene {
-  public readonly scene = new TScene();
-  public readonly camera = new OrthographicCamera();
-  public readonly renderer = new WebGLRenderer({ antialias: true });
-  public readonly raycaster = new Raycaster();
+  readonly scene = new TScene();
+  readonly camera = new OrthographicCamera();
+  readonly renderer = new WebGLRenderer({ antialias: true });
+
+  private readonly interactivity = new Interactivity(this.renderer, this.camera);
+
   private readonly resources = di.inject(Resources);
-
-  private readonly grid = new Grid(this.scene);
-
-  private readonly itemManager = di.inject(ItemManager);
-
-  private lastGridCoordinates?: Vector2;
-
   private readonly time = di.inject(Time);
+
+  private readonly grid = new Grid();
+
   private readonly directionalLight = new DirectionalLight(0xffffff, 3);
   private readonly ambientLight = new AmbientLight(0xffffff, 0.2);
 
@@ -65,21 +50,8 @@ export class Scene {
     this.scene.add(field);
     field.position.y = -4.25;
 
-    // Mouse move projection setup
-    const plane = new Plane(new Vector3(0, 1, 0), 0);
-
-    this.renderer.domElement.addEventListener("mousemove", (event) => {
-      const gridCoords = this.mouseToGrid(event, this.raycaster, plane);
-      this.grid.highlight = gridCoords;
-      this.lastGridCoordinates = gridCoords;
-    });
-
-    // Place item on click
-    this.renderer.domElement.addEventListener("click", () => {
-      if (!this.lastGridCoordinates) return;
-      const selectedItem = this.itemManager.selectedItem;
-      this.grid.addItem(selectedItem, this.lastGridCoordinates);
-    });
+    // Add grid
+    this.scene.add(this.grid);
 
     // Update camera on window resize
     window.addEventListener("resize", () => {
@@ -87,6 +59,14 @@ export class Scene {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     });
     this.updateCamera();
+
+    // Start the render loop
+    this.time.subscribe(this.render.bind(this));
+  }
+
+  private render() {
+    this.setDayNightPhase(this.time.phase);
+    this.renderer.render(this.scene, this.camera);
   }
 
   // Update camera bounds and projection
@@ -109,24 +89,6 @@ export class Scene {
     this.camera.far = 100;
 
     this.camera.updateProjectionMatrix();
-  }
-
-  private mouseToGrid({ clientX, clientY }: MouseEvent, raycaster: Raycaster, plane: Plane) {
-    const { left, top, width, height } = this.renderer.domElement.getBoundingClientRect();
-    const ndcX = ((clientX - left) / width) * 2 - 1;
-    const ndcY = -((clientY - top) / height) * 2 + 1;
-
-    raycaster.setFromCamera(new Vector2(ndcX, ndcY), this.camera);
-
-    const intersection = new Vector3();
-    if (raycaster.ray.intersectPlane(plane, intersection)) return this.grid.toGrid(intersection);
-
-    return undefined;
-  }
-
-  render() {
-    this.setDayNightPhase(this.time.phase);
-    this.renderer.render(this.scene, this.camera);
   }
 
   private setDayNightPhase(phase: number) {

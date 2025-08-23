@@ -24,6 +24,7 @@ export class ItemManager {
   get money() {
     return this.resources.money;
   }
+
   set money(value: number) {
     this.resources.money = value;
   }
@@ -59,10 +60,7 @@ export class ItemManager {
       if (data.type === "egg" && this.resources.egg >= this.goalEggs) this.goalReached.emit();
     });
 
-    item.removed.subscribe(() => {
-      const idx = this.placedItems.indexOf(item);
-      if (idx !== -1) this.placedItems.splice(idx, 1);
-    });
+    item.removed.subscribe(() => this.placedItems.remove(item));
 
     return item;
   }

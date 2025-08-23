@@ -2,7 +2,7 @@ import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(eslint.configs.recommended, tseslint.configs.recommendedTypeChecked, {
-  files: ["src/**/*.{js,mjs,cjs,ts,mts,cts}"],
+  files: ["src/**/*.ts"],
   languageOptions: {
     parserOptions: {
       projectService: true,
@@ -26,5 +26,14 @@ export default tseslint.config(eslint.configs.recommended, tseslint.configs.reco
       },
     ],
     "no-duplicate-imports": "error",
+    // Disallow explicit 'public' keyword
+    "@typescript-eslint/explicit-member-accessibility": [
+      "warn",
+      {
+        accessibility: "no-public",
+      },
+    ],
+    // Require blank line between class members (including methods)
+    "lines-between-class-members": ["warn", "always", { exceptAfterSingleLine: true }],
   },
 });

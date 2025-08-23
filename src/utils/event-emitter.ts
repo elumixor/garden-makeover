@@ -18,12 +18,11 @@ export class EventEmitter<TEventData = void> {
   }
 
   /** Subscribes the callback to the event. */
-  subscribe(callback: EventHandler<TEventData>): ISubscription<TEventData> {
+  subscribe(callback: EventHandler<TEventData>) {
     this.callbacks.push(callback);
 
     return {
       unsubscribe: () => this.unsubscribe(callback),
-      callback,
     };
   }
 
@@ -43,7 +42,7 @@ export class EventEmitter<TEventData = void> {
   }
 
   /** Calls `unsubscribe()` immediately after the callback is invoked. */
-  subscribeOnce(callback: EventHandler<TEventData>): ISubscription<TEventData> {
+  subscribeOnce(callback: EventHandler<TEventData>) {
     const wrappedCallback = (eventData: TEventData) => {
       void callback(eventData);
       this.unsubscribe(wrappedCallback);
@@ -78,12 +77,11 @@ export class AsyncEventEmitter<TEventData = void> {
   }
 
   /** Subscribes the callback to the event. */
-  subscribe(callback: (eventData: TEventData) => Awaitable): ISubscription<TEventData> {
+  subscribe(callback: (eventData: TEventData) => Awaitable) {
     this.callbacks.push(callback);
 
     return {
       unsubscribe: () => this.unsubscribe(callback),
-      callback,
     };
   }
 
@@ -100,7 +98,7 @@ export class AsyncEventEmitter<TEventData = void> {
   }
 
   /** Calls `unsubscribe()` immediately after the callback is invoked. */
-  subscribeOnce(callback: (eventData: TEventData) => Awaitable): ISubscription<TEventData> {
+  subscribeOnce(callback: (eventData: TEventData) => Awaitable) {
     const wrappedCallback = async (eventData: TEventData) => {
       await callback(eventData);
       this.unsubscribe(wrappedCallback);
@@ -122,9 +120,4 @@ export class AsyncEventEmitter<TEventData = void> {
     this.subscribe((eventData) => eventEmitter.emit(callback(eventData)));
     return eventEmitter;
   }
-}
-
-export interface ISubscription<TEventData = void> {
-  callback: (eventData: TEventData) => unknown;
-  unsubscribe(): void;
 }

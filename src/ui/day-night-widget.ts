@@ -52,11 +52,11 @@ export class DayNightWidget {
 
     document.body.appendChild(this.root);
     this.root.onclick = () => {
+      this.time.fastForward();
       playClick();
-      this.time.speedUp();
     };
 
-    this.render();
+    this.time.subscribe(() => this.render());
   }
 
   render() {
