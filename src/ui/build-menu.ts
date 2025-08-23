@@ -21,7 +21,8 @@ export class BuildMenu {
     { key: "buildings", icon: CATEGORY_ICONS.buildings, category: "building" },
   ] as const;
 
-  private activeTab = "plants" as (typeof this.categories)[number]["key"];
+  // Set to undefined so no tab is selected initially
+  private activeTab: (typeof this.categories)[number]["key"] | undefined = undefined;
 
   private readonly tabButtons: Record<string, HTMLButtonElement> = {};
   private readonly menuButtons: HTMLButtonElement[] = [];
@@ -44,16 +45,12 @@ export class BuildMenu {
       const btn = document.createElement("button");
       btn.className =
         styles.buildMenuCategoryBtn + (tab.key === this.activeTab ? ` ${styles.buildMenuCategoryBtnActive}` : "");
-      btn.onclick = () => {
+      btn.setAttribute("data-tutorial", tab.key);
+      btn.onpointerdown = () => {
         playClick();
         this.activeTab = tab.key;
         for (const key in this.tabButtons)
           this.tabButtons[key].classList.toggle(styles.buildMenuCategoryBtnActive, key === this.activeTab);
-
-        // Select first enabled item in the new tab
-        const defs = this.getDefsForActiveTab();
-        const firstEnabled = defs.find((def) => def.enabled);
-        if (firstEnabled) this.itemManager.selectedItem = firstEnabled.name;
 
         this.updateMenuItems();
       };
@@ -77,7 +74,8 @@ export class BuildMenu {
     for (let i = 0; i < maxItems; ++i) {
       const btn = document.createElement("button");
       btn.className = styles.buildMenuItem;
-      btn.onclick = () => {
+      btn.setAttribute("data-tutorial", "");
+      btn.onpointerdown = () => {
         const def = this.getDefsForActiveTab()[i];
         if (def && def.enabled && this.itemManager.hasEnoughResources(def)) {
           playClick();
@@ -90,10 +88,7 @@ export class BuildMenu {
       this.menuItems.appendChild(btn);
     }
 
-    // Select first enabled item in initial tab
-    const defs = this.getDefsForActiveTab();
-    const firstEnabled = defs.find((def) => def.enabled);
-    if (firstEnabled) this.itemManager.selectedItem = firstEnabled.name;
+    // Do NOT select any item or tab initially
 
     this.updateMenuItems();
 
@@ -110,17 +105,23 @@ export class BuildMenu {
   }
 
   private getDefsForActiveTab() {
+    if (!this.activeTab) return [];
     const tab = this.categories.find((t) => t.key === this.activeTab)!;
     return this.getDefsForCategory(tab.category);
   }
 
   private updateMenuItems() {
     const defs = this.getDefsForActiveTab();
+    // Hide the menuItems container if no tab is selected
+    this.menuItems.style.display = this.activeTab ? "" : "none";
     for (let i = 0; i < this.menuButtons.length; ++i) {
       const btn = this.menuButtons[i];
       const def = defs[i];
       if (def) {
         btn.style.display = "";
+
+        // Set data-tutorial attribute for each menu item
+        btn.setAttribute("data-tutorial", def.name);
 
         // Compute current state
         const canAfford = this.itemManager.hasEnoughResources(def);
@@ -167,6 +168,7 @@ export class BuildMenu {
         }
       } else {
         btn.style.display = "none";
+        btn.setAttribute("data-tutorial", ""); // Clear attribute if not used
         // Clear cache for unused buttons
         this.lastButtonStates[i] = {};
       }

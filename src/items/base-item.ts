@@ -42,7 +42,12 @@ export class BaseItem extends Group {
   }
 
   get canYieldMoney() {
-    return this.def.yields?.some((y) => y.type === "money" && y.amount > 0) ?? false;
+    const { yields, growthStages } = this.def;
+    // Check direct yields
+    if (yields?.some(({ type, amount }) => type === "money" && amount > 0)) return true;
+
+    // Check growth stage yields
+    return growthStages?.some(({ yield: { type, amount = 0 } = {} }) => type === "money" && amount > 0) ?? false;
   }
 
   private getModelForStage(stage: number) {

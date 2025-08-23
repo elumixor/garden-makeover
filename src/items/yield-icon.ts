@@ -18,6 +18,9 @@ export class YieldIcon extends Sprite {
 
     this.scale.set(2, 2, 1);
 
+    // Add tutorial userData for tutorial manager lookup
+    this.userData.tutorial = "yield-icon";
+
     // Register click handler for this sprite
     this.interactivity.on(this, () => {
       if (!this.visible) return;

@@ -21,7 +21,7 @@ function getPlusGeometry(size: number, thickness: number) {
 }
 
 export class GridIndicator extends Group {
-  readonly clicked = new EventEmitter<Vector2>();
+  readonly clicked = new EventEmitter();
   private readonly interactivity = di.inject(Interactivity);
   private readonly subscription;
 
@@ -63,8 +63,11 @@ export class GridIndicator extends Group {
     this.position.set(coords.x * cellSize + cellSize / 2, 0, coords.y * cellSize + cellSize / 2);
     this.rotation.x = Math.PI / 2;
 
+    // Add tutorial userData for tutorial manager lookup
+    this.userData.tutorial = "grid-indicator";
+
     // Register click handler for this mesh group using scene's interactivity system
-    this.subscription = this.interactivity.on(bgMesh, () => this.clicked.emit(this.coords));
+    this.subscription = this.interactivity.on(bgMesh, () => this.clicked.emit());
   }
 
   dispose() {

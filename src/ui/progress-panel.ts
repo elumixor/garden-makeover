@@ -14,7 +14,7 @@ export class ProgressPanel {
     this.root.className = styles.progressPanel;
 
     this.progressText.className = styles.progressText;
-    this.progressText.innerHTML = `Collect 100 <img src="images/egg.png" alt="egg" class="${styles.progressTextEgg}">`;
+    this.progressText.innerHTML = `Collect ${this.itemManager.goalEggs} <img src="images/egg.png" alt="egg" class="${styles.progressTextEgg}">`;
 
     this.progressBar.className = styles.progressBar;
     this.progressBarInner.className = styles.progressBarInner;
@@ -31,7 +31,7 @@ export class ProgressPanel {
 
   update() {
     const eggs = this.itemManager.eggs;
-    const percent = Math.min(eggs / 100, 1) * 100;
+    const percent = Math.min(eggs / this.itemManager.goalEggs, 1) * 100;
     this.progressBarInner.style.width = `${percent}%`;
   }
 }

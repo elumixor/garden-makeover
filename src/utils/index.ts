@@ -7,3 +7,4 @@ export * from "./create-svg";
 export * from "./lerp-color";
 export * from "./interactivity";
 export * from "./subscription";
+export * from "./delay";

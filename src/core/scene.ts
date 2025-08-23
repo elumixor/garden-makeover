@@ -32,7 +32,7 @@ export class Scene {
 
     // Set up camera
     this.camera.position.set(-20, 20, 15);
-    this.camera.lookAt(5, 0, -5);
+    this.camera.lookAt(5, 0, -4);
 
     // Set up basic lighting
     this.directionalLight.position.set(5, 10, 7.5);

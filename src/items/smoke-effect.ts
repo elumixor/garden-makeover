@@ -1,5 +1,5 @@
 import { Resources, Time } from "core";
-import { Group, Sprite, SpriteMaterial } from "three";
+import { Group, Sprite } from "three";
 import { di } from "utils";
 
 export class SmokeEffect extends Group {
@@ -11,7 +11,7 @@ export class SmokeEffect extends Group {
 
     const count = 3;
     for (let i = 0; i < count; i++) {
-      const material = new SpriteMaterial({ map: this.resources.smokeTexture!, transparent: true, opacity: 0.8 });
+      const material = this.resources.smokeMaterial!;
       const sprite = new Sprite(material);
 
       // Randomize position around the model
@@ -34,7 +34,6 @@ export class SmokeEffect extends Group {
         sprite.scale.setScalar(1.2 + t * 0.8);
         if (t >= 1) {
           this.removeFromParent();
-          sprite.material.dispose();
           subscription.unsubscribe();
         }
       });

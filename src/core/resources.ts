@@ -1,4 +1,4 @@
-import { AnimationClip, Mesh, Object3D, Texture, TextureLoader } from "three";
+import { AnimationClip, Mesh, Object3D, SpriteMaterial, TextureLoader } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { SkeletonUtils } from "three/examples/jsm/Addons.js";
 import { di } from "utils";
@@ -17,7 +17,7 @@ export class Resources {
   readonly imageCache: Record<string, HTMLImageElement> = {};
   readonly animations = new Map<string, AnimationClip>();
   private readonly models = new Map<ModelName, Object3D>();
-  smokeTexture?: Texture;
+  smokeMaterial?: SpriteMaterial; // cache for smoke material
 
   async load() {
     const loader = new GLTFLoader();
@@ -29,7 +29,11 @@ export class Resources {
       textureLoader.loadAsync("images/smoke.png"),
     ]);
 
-    this.smokeTexture = smokeTexture;
+    this.smokeMaterial = new SpriteMaterial({
+      map: smokeTexture,
+      transparent: true,
+      opacity: 0.8,
+    });
 
     field.scene.traverse(setupMesh);
     field.scene.position.set(0, 0, 0);

@@ -22,6 +22,7 @@ export class DayNightWidget {
   constructor() {
     this.root.className = styles.dayNightWidget;
     this.root.title = "Speed up to next day";
+    this.root.setAttribute("data-tutorial", "skip-day");
 
     // Set SVG size and viewBox with padding
     this.svg.setAttribute("width", this.size.toString());
@@ -51,7 +52,7 @@ export class DayNightWidget {
     this.root.appendChild(this.skipImg);
 
     document.body.appendChild(this.root);
-    this.root.onclick = () => {
+    this.root.onpointerdown = () => {
       this.time.fastForward();
       playClick();
     };

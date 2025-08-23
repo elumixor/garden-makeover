@@ -7,17 +7,17 @@ export class ItemManager {
   readonly changed = new EventEmitter();
   readonly goalReached = new EventEmitter();
   readonly moneyDepleted = new EventEmitter(); // Add this line
-  selectedItem: ItemName = "chicken";
+  selectedItem?: ItemName;
 
   readonly resources: Record<Resource, number> = {
-    money: 50,
-    egg: 25,
-    corn: 10,
+    money: 3,
+    egg: 0,
+    corn: 0,
     grape: 0,
     tomato: 0,
   };
 
-  readonly goalEggs = 100;
+  readonly goalEggs = 50;
 
   private readonly placedItems: BaseItem[] = []; // Track placed items
 
@@ -47,9 +47,9 @@ export class ItemManager {
     if (!this.hasEnoughResources(def)) return undefined;
 
     const item = new BaseItem(def);
-    this.spendResources(def);
-
     this.placedItems.push(item); // Track placed item
+
+    this.spendResources(def);
 
     item.collected.subscribe((data) => {
       // Update resources on collection
@@ -79,8 +79,6 @@ export class ItemManager {
     this.changed.emit();
 
     // Emit moneyDepleted if money is zero or less and no items can yield money
-    if (this.money <= 0 && !this.canYieldMoney) {
-      this.moneyDepleted.emit();
-    }
+    if (this.money <= 0 && !this.canYieldMoney) this.moneyDepleted.emit();
   }
 }

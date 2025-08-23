@@ -9,6 +9,8 @@ declare global {
     get isEmpty(): boolean;
     /** Returns true if the array is not empty, false otherwise. */
     get nonEmpty(): boolean;
+    /** Returns a new array with the first `count` elements. */
+    take(count: number): T[];
   }
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -52,4 +54,11 @@ Reflect.defineProperty(Array.prototype, "remove", {
   },
   writable: false,
   configurable: true,
+});
+
+Reflect.defineProperty(Array.prototype, "take", {
+  value(this: unknown[], count: number) {
+    return this.slice(0, count);
+  },
+  writable: false,
 });

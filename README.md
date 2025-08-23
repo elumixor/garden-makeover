@@ -63,20 +63,35 @@ Alternatively, tap the always-visible **Download** button to exit early.
 
 ##  Tutorial Flow
 
-1. **Intro screen**: Animated arrow points to “Strawberry” in the Plants tab + bubble: *“Plant strawberries to earn coins!”*
-2. After planting a strawberry:
-  - Arrow shifts to the yard grid.
-  - Bubble: *“Tap here to plant.”*
+1. **Intro screen**: Animated arrow points to **Plants tab** (bottom menu), then to “Strawberry” in the Plants tab + bubble: *“Plant strawberries to earn coins!”*
+2. After selecting strawberry:
+   - Arrow shifts to the yard grid.
+   - Bubble: *“Tap here to plant.”*
 3. Strawberry harvest triggers:
-  - Bubble: *“Nice! You earned coins.”*
+   - Bubble: *“Nice! You earned coins.”*
 4. Then:
-  - Arrow to Building tab → select Fence.
-  - Bubble: *“Build a fence to raise chickens.”*
+   - Arrow to **Plants tab** → select Corn.
+   - Bubble: *“Plant corn for your chickens!”*
 5. Next:
-  - Arrow to Animals tab → Chicken (enabled inside fence).
-  - Bubble: *“Place a chicken inside the fence.”*
-6. On chicken egg production:
-  - Floating egg icon appears → bubble: *“Tap to collect eggs!”*
+   - Arrow to yard grid → plant corn.
+6. On corn harvest:
+   - Bubble: *“Collect your corn!”*
+7. Then:
+   - Arrow to **Buildings tab** → select Fence.
+   - Bubble: *“Build a fence to raise chickens.”*
+8. Next:
+   - Arrow to **Animals tab** → select Chicken.
+   - Bubble: *“Place a chicken inside the fence.”*
+9. On chicken placement:
+   - Arrow to fence area → place chickens.
+10. On egg production:
+    - Arrow to skip button → skip days.
+11. On egg icon:
+    - Bubble: *“Tap to collect eggs!”*
+12. Resource management tip:
+    - Bubble: *“Chickens eat corn daily. Keep planting to sustain them!”*
+13. End of tutorial:
+    - Bubble: *“Good luck! You're ready to play.”*
 
 
 ##  End Condition
@@ -90,6 +105,56 @@ Alternatively, tap the always-visible **Download** button to exit early.
 
 
 ##  Technical Notes
+
+## Tutorial System
+
+The tutorial guides the player through the core gameplay loop step by step, ensuring they understand planting, harvesting, and resource management. The flow is as follows:
+
+1. **Plant Strawberries**:
+  - The player is prompted to plant 5 strawberries.
+  - UI highlights the strawberry option and planting area.
+  - Progress is tracked; the player cannot proceed until all 5 are planted.
+
+2. **Skip Days for Growth**:
+  - The player is prompted to use the "Skip Day" button a set number of times to grow the strawberries.
+  - UI highlights the skip button.
+  - Progresses only after enough days have passed for strawberries to mature.
+
+3. **Harvest Strawberries**:
+  - The player is prompted to collect all ripe strawberries.
+  - UI highlights the harvestable plants.
+  - Progresses after all 5 are collected.
+
+4. **Plant Corn**:
+  - The player is prompted to plant 5 corn plants.
+  - UI highlights the corn option and planting area.
+  - Progresses after all 5 are planted.
+
+5. **Skip Days for Corn Growth**:
+  - The player is prompted to skip days again for corn to mature.
+  - UI highlights the skip button.
+
+6. **Harvest Corn**:
+  - The player is prompted to collect all ripe corn.
+  - UI highlights the harvestable plants.
+
+7. **Place Chickens**:
+  - The player is prompted to place 5 chickens inside a fence.
+  - UI highlights the chicken option and valid placement areas.
+
+8. **Skip Days for Egg Production**:
+  - The player is prompted to skip days for chickens to lay eggs.
+
+9. **Collect Eggs**:
+  - The player is prompted to collect eggs from chickens.
+
+10. **Resource Management Tips**:
+   - The tutorial explains that chickens consume corn daily and will disappear if unfed.
+   - Reminds the player to keep planting strawberries and corn to sustain chickens.
+
+11. **End of Tutorial**:
+   - A "Good luck!" message is shown, and the player is free to play.
+
 
 ###  Responsivity & Scaling
 

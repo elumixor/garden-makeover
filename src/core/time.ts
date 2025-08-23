@@ -22,6 +22,7 @@ export class Time {
   private time = 0;
   private fixedTime = 0;
   private speedupTimer = 0;
+  paused = false;
 
   /** Returns 0..1, 0=day, 0.5=night, 1=day */
   get phase() {
@@ -46,6 +47,8 @@ export class Time {
   readonly start = () => {
     requestAnimationFrame(this.start); // schedule next frame
     const fixedDeltaTime = this.clock.getDelta(); // seconds since last frame
+
+    if (this.paused) return;
 
     // Check for speedup
     const { speedupTimer, speed } = this;

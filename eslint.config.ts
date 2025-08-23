@@ -1,5 +1,6 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
+import stylistic from "@stylistic/eslint-plugin";
 
 export default tseslint.config(eslint.configs.recommended, tseslint.configs.recommendedTypeChecked, {
   files: ["src/**/*.ts"],
@@ -9,11 +10,16 @@ export default tseslint.config(eslint.configs.recommended, tseslint.configs.reco
       tsconfigRootDir: import.meta.dirname,
     },
   },
+  plugins: {
+    "@stylistic": stylistic,
+  },
   rules: {
     "no-console": "error",
     "@typescript-eslint/prefer-readonly": "error",
     "no-useless-rename": "error",
     "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+    "@typescript-eslint/no-unnecessary-template-expression": "error",
+    "@stylistic/quotes": ["error", "double"],
     "@typescript-eslint/naming-convention": [
       "error",
       {

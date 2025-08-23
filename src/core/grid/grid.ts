@@ -17,7 +17,7 @@ export class Grid extends Group {
   }
 
   private addItem(gridCoords: Vector2) {
-    if (!this.isCellFree(gridCoords)) return;
+    if (!this.isCellFree(gridCoords) || !this.itemManager.selectedItem) return;
 
     const item = this.itemManager.instantiate(this.itemManager.selectedItem);
     if (!item) return;
@@ -54,6 +54,16 @@ export class Grid extends Group {
     for (let x = -5; x <= 4; x++) {
       if (x === -1) continue; // Skip the center column, there is road in the model there
       for (let y = -4; y <= 3; y++) {
+        if (x === -5 && y !== 0) continue;
+        if (x === -4 && (y < -1 || y > 1)) continue;
+        if (x === -3 && y < -2) continue;
+        if (x === -2 && y < -3) continue;
+        if (x === 0 && y > 2) continue;
+        if (x === 1 && y > 2) continue;
+        if (x === 2 && y > 1) continue;
+        if (x === 3 && y > 0) continue;
+        if (x === 4 && y > -1) continue;
+
         const v = new Vector2(x, y);
         if (this.isCellFree(v)) positions.push(v);
       }
@@ -75,7 +85,7 @@ export class Grid extends Group {
     for (const pos of this.getAvailablePositions()) {
       const indicator = new GridIndicator(pos, this.cellSize);
       this.add(indicator);
-      indicator.clicked.subscribe((coords) => this.addItem(coords));
+      indicator.clicked.subscribe(() => this.addItem(indicator.coords));
       this.indicators.push(indicator);
     }
   }

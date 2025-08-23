@@ -1,0 +1,81 @@
+.tutorialOverlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  pointer-events: auto;
+  z-index: 9999;
+  transition: opacity 0.1s;
+}
+
+.tutorialOverlayHoleCircle {
+  position: fixed;
+  pointer-events: auto;
+  background: transparent;
+  border-radius: 50%;
+  z-index: 10000;
+  left: 0px;
+  top: 0px;
+  width: 0px;
+  height: 0px;
+  border: none;
+  outline: none;
+  transition: opacity 0.1s;
+}
+
+.tutorialOverlayText {
+  position: fixed;
+  max-width: 300px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  text-shadow:
+    0 2px 8px #000,
+    0 1px 0 #222;
+  z-index: 10001;
+  left: 0px;
+  top: 0px;
+  pointer-events: none;
+  padding: 10px 18px;
+  box-sizing: border-box;
+  display: none;
+  line-height: 1.3;
+  user-select: none;
+  border-radius: 12px;
+  animation: tutorialTextBlink 1.6s infinite;
+  transition: opacity 0.1s;
+}
+
+@keyframes tutorialTextBlink {
+  0% {
+    color: #fff;
+    text-shadow:
+      0 2px 8px #000,
+      0 1px 0 #222,
+      0 0 0px #ffd700;
+  }
+  40% {
+    color: #ffd700;
+    text-shadow:
+      0 2px 8px #000,
+      0 1px 0 #222,
+      0 0 16px #ffd700;
+  }
+  60% {
+    color: #ffd700;
+    text-shadow:
+      0 2px 8px #000,
+      0 1px 0 #222,
+      0 0 16px #ffd700;
+  }
+  100% {
+    color: #fff;
+    text-shadow:
+      0 2px 8px #000,
+      0 1px 0 #222,
+      0 0 0px #ffd700;
+  }
+}
